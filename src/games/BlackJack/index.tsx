@@ -1,7 +1,7 @@
 // src/games/Blackjack.tsx
 import React from 'react'
 import { GambaUi, useSound, useWagerInput } from 'gamba-react-ui-v2'
-import { useUserStore } from '../hooks/useUserStore'
+import { useUserStore } from '../../hooks/useUserStore'
 import {
   CARD_VALUES,
   RANKS,
