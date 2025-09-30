@@ -1,5 +1,5 @@
 import React from 'react'
-import { useUserStore } from '../hooks/useUserStore'
+import { useUserStore } from '../../hooks/useUserStore'
 import CustomSlider from './Slider'
 import CRASH_SOUND from './crash.mp3'
 import SOUND from './music.mp3'
