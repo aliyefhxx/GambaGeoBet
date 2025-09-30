@@ -81,10 +81,8 @@ const Switch = styled.p`
   }
 `
 
-export default function AuthModal({ onLogin }: { onLogin: (username: string) => void }) {
+export default function AuthModal() {
   const [isRegister, setIsRegister] = useState(false)
-
-  // sahələr
   const [username, setUsername] = useState("")
   const [password, setPassword] = useState("")
   const [name, setName] = useState("")
@@ -94,51 +92,35 @@ export default function AuthModal({ onLogin }: { onLogin: (username: string) => 
   const [age, setAge] = useState("")
   const [birth, setBirth] = useState("")
 
-  const setUser = useUserStore((state) => state.setUser)
+  const register = useUserStore((state) => state.register)
+  const login = useUserStore((state) => state.login)
 
   const handleRegister = (e: React.FormEvent) => {
     e.preventDefault()
-    const users = JSON.parse(localStorage.getItem("users") || "[]")
-
     if (!username || !password) {
       alert("ყველა ველი უნდა შეავსოთ")
       return
     }
 
-    if (users.find((u: any) => u.username === username)) {
-      alert("მომხმარებლის სახელი უკვე არსებობს")
-      return
-    }
-
-    const newUser = {
+    const success = register({
       username,
       password,
-      name,
-      surname,
+      displayName: name + " " + surname,
       phone,
       passport,
-      age,
-      birth,
-      balance: 200, // 💰 საწყისი ბონუსი
-    }
+      age: Number(age),
+      birthday: birth,
+    })
 
-    users.push(newUser)
-    localStorage.setItem("users", JSON.stringify(users))
-    setUser(newUser) // ✅ həm store, həm localStorage update
-    onLogin(username)
+    if (!success) {
+      alert("მომხმარებელი უკვე არსებობს")
+    }
   }
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault()
-    const users = JSON.parse(localStorage.getItem("users") || "[]")
-    const user = users.find(
-      (u: any) => u.username === username && u.password === password
-    )
-
-    if (user) {
-      setUser(user) // ✅ mövcud user yüklə
-      onLogin(username)
-    } else {
+    const success = login(username, password)
+    if (!success) {
       alert("მომხმარებელი ან პაროლი არასწორია")
     }
   }
@@ -149,7 +131,6 @@ export default function AuthModal({ onLogin }: { onLogin: (username: string) => 
         <Title>{isRegister ? "რეგისტრაცია ✨" : "შესვლა 🔑"}</Title>
 
         <form onSubmit={isRegister ? handleRegister : handleLogin}>
-          {/* საერთო sahələr */}
           <Input
             type="text"
             placeholder="მომხმარებლის სახელი"
@@ -163,7 +144,6 @@ export default function AuthModal({ onLogin }: { onLogin: (username: string) => 
             onChange={(e) => setPassword(e.target.value)}
           />
 
-          {/* მხოლოდ რეგისტრაციისას */}
           {isRegister && (
             <>
               <Input type="text" placeholder="სახელი" value={name} onChange={(e) => setName(e.target.value)} />
