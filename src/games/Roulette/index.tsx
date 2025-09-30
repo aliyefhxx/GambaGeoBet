@@ -8,6 +8,7 @@ import { Table } from './Table'
 import { CHIPS, SOUND_LOSE, SOUND_PLAY, SOUND_WIN } from './constants'
 import { addResult, bet, clearChips, results, selectedChip, totalChipValue } from './signals'
 import { useUserStore } from '../../hooks/useUserStore'
+
 const Wrapper = styled.div`
   display: grid;
   gap: 20px;
@@ -16,6 +17,7 @@ const Wrapper = styled.div`
   -webkit-user-select: none;
   color: white;
 `
+
 function Results() {
   const _results = computed(() => [...results.value].reverse())
   return (
@@ -23,7 +25,7 @@ function Results() {
       {_results.value.map((index, i) => {
         return (
           <div key={i}>
-            {index + 1}
+            {index}
           </div>
         )
       })}
@@ -35,28 +37,32 @@ function Stats() {
   const { balance } = useUserStore()
   const wager = totalChipValue.value
 
-  const multiplier = Math.max(...bet.value)
-  const maxPayout = multiplier * wager
+  // Mərc qoyulan yerlərə görə ən yüksək payout hesabla
+  let maxPayout = 0
+  bet.value.forEach((multiplier) => {
+    if (multiplier > 0) {
+      const payout = multiplier * wager
+      if (payout > maxPayout) {
+        maxPayout = payout
+      }
+    }
+  })
+
   const balanceExceeded = wager > balance
 
   return (
     <div style={{ textAlign: 'center', display: 'grid', gridTemplateColumns: '1fr 1fr' }}>
       <div>
         {balanceExceeded ? (
-          <span style={{ color: '#ff0066' }}>
-            TOO HIGH
-          </span>
+          <span style={{ color: '#ff0066' }}>TOO HIGH</span>
         ) : (
-          <>
-            {wager}
-          </>
+          <>{wager}</>
         )}
         <div>Wager</div>
       </div>
       <div>
         <div>
-          {maxPayout}
-          ({multiplier.toFixed(2)}x)
+          {maxPayout} ({maxPayout > 0 ? (maxPayout / wager).toFixed(2) : "0"}x)
         </div>
         <div>Potential win</div>
       </div>
@@ -74,8 +80,6 @@ export default function Roulette() {
   })
 
   const wager = totalChipValue.value
-  const multiplier = Math.max(...bet.value)
-  const maxPayout = multiplier * wager
   const balanceExceeded = wager > balance
 
   const play = async () => {
@@ -84,15 +88,20 @@ export default function Roulette() {
       return
     }
 
+    // Mərc çıxılır
     updateBalance(balance - wager)
     sounds.play('play')
 
-    const resultIndex = Math.floor(Math.random() * bet.value.length)
-    const payout = wager * bet.value[resultIndex]
+    // Nəticə 0–36 arası random seçilir
+    const resultIndex = Math.floor(Math.random() * 37)
     addResult(resultIndex)
 
+    // Mərc qoyulmuş xananın multiplikatoru
+    const multiplier = bet.value[resultIndex] || 0
+    const payout = wager * multiplier
+
     if (payout > 0) {
-      updateBalance(balance - wager + payout)
+      updateBalance((prev) => prev + payout)
       sounds.play('win')
     } else {
       sounds.play('lose')
