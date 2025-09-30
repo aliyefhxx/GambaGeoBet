@@ -3,7 +3,7 @@ import { GambaUi, useSound } from 'gamba-react-ui-v2'
 import React from 'react'
 import { Coin, TEXTURE_HEADS, TEXTURE_TAILS } from './Coin'
 import { Effect } from './Effect'
-import { useUserStore } from '../hooks/useUserStore'
+import { useUserStore } from '../../hooks/useUserStore'
 
 import SOUND_COIN from './coin.mp3'
 import SOUND_LOSE from './lose.mp3'
