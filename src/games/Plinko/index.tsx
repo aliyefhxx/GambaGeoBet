@@ -1,7 +1,7 @@
 import { GambaUi, useSound } from 'gamba-react-ui-v2'
 import React from 'react'
 import { PEG_RADIUS, PLINKO_RAIUS, Plinko as PlinkoGame, PlinkoProps, barrierHeight, barrierWidth, bucketHeight } from './game'
-import { useUserStore } from '../hooks/useUserStore'
+import { useUserStore } from '../../hooks/useUserStore'
 
 import BUMP from './bump.mp3'
 import FALL from './fall.mp3'
