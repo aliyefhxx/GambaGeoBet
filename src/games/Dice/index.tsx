@@ -1,43 +1,15 @@
 import React from 'react'
 import { useUserStore } from '../../hooks/useUserStore'
-import CustomSlider from './Slider'
+import Slider from './Slider'   // ✅ düzəliş edildi
 import { SOUND_LOSE, SOUND_PLAY, SOUND_TICK, SOUND_WIN } from './constants'
 import { Container, Result, RollUnder, Stats } from './styles'
 import { useSound } from 'gamba-react-ui-v2'
-
-const calculateArraySize = (odds: number): number => {
-  const gcd = (a: number, b: number): number => (b ? gcd(b, a % b) : a)
-  return 100 / gcd(100, odds)
-}
-
-export const outcomes = (odds: number) => {
-  const arraySize = calculateArraySize(odds)
-  const payout = (100 / odds).toFixed(4)
-
-  let payoutArray = Array.from({ length: arraySize }).map((_, index) =>
-    index < (arraySize * (odds / 100)) ? parseFloat(payout) : 0
-  )
-
-  const totalValue = payoutArray.reduce((acc, curr) => acc + curr, 0)
-
-  if (totalValue > arraySize) {
-    for (let i = payoutArray.length - 1; i >= 0; i--) {
-      if (payoutArray[i] > 0) {
-        payoutArray[i] -= totalValue - arraySize
-        payoutArray[i] = parseFloat(payoutArray[i].toFixed(4))
-        break
-      }
-    }
-  }
-
-  return payoutArray
-}
 
 export default function Dice() {
   const { balance, withdrawBalance, addBalance } = useUserStore()
   const [wager, setWager] = React.useState(10)
   const [resultIndex, setResultIndex] = React.useState(-1)
-  const [rollUnderIndex, setRollUnderIndex] = React.useState(Math.floor(100 / 2))
+  const [rollUnderIndex, setRollUnderIndex] = React.useState(50) // default 50%
   const [isPlaying, setIsPlaying] = React.useState(false)
 
   const sounds = useSound({
@@ -47,7 +19,6 @@ export default function Dice() {
     tick: SOUND_TICK,
   })
 
-  const odds = Math.floor((rollUnderIndex / 100) * 100)
   const multiplier = 100 / rollUnderIndex
   const maxWin = multiplier * wager
 
@@ -61,7 +32,7 @@ export default function Dice() {
     sounds.play('play')
     setIsPlaying(true)
 
-    // Məntiq: uduş və ya məğlubiyyət
+    // Random nəticə
     const win = Math.random() * 100 < rollUnderIndex
 
     const resultNum = win
@@ -87,13 +58,13 @@ export default function Dice() {
         <Container>
           <RollUnder>
             <div>
-              <div>{rollUnderIndex + 1}</div>
+              <div>{rollUnderIndex}</div>
               <div>Roll Under</div>
             </div>
           </RollUnder>
           <Stats>
             <div>
-              <div>{(rollUnderIndex / 100 * 100).toFixed(0)}%</div>
+              <div>{rollUnderIndex}%</div>
               <div>Win Chance</div>
             </div>
             <div>
@@ -107,15 +78,13 @@ export default function Dice() {
           </Stats>
           <div style={{ position: 'relative' }}>
             {resultIndex > -1 && (
-              <Result style={{ left: `${resultIndex / 100 * 100}%` }}>
-                <div key={resultIndex}>{resultIndex + 1}</div>
+              <Result style={{ left: `${(resultIndex / 100) * 100}%` }}>
+                <div key={resultIndex}>{resultIndex}</div>
               </Result>
             )}
             <Slider
               disabled={isPlaying}
-              range={[0, 100]}
-              min={1}
-              max={95}
+              range={[1, 95]}
               value={rollUnderIndex}
               onChange={(value) => {
                 setRollUnderIndex(value)
@@ -126,7 +95,7 @@ export default function Dice() {
         </Container>
       </div>
 
-      <div className="controls">
+      <div className="controls" style={{ marginTop: '20px' }}>
         <input
           type="number"
           value={wager}
@@ -134,7 +103,9 @@ export default function Dice() {
           min={1}
           max={balance}
         />
-        <button onClick={play} disabled={isPlaying}>Roll</button>
+        <button onClick={play} disabled={isPlaying}>
+          Roll
+        </button>
       </div>
     </>
   )
