@@ -1,7 +1,7 @@
 // src/games/HiLo.tsx
 import React from 'react'
 import { GambaUi, useSound } from 'gamba-react-ui-v2'
-import { useUserStore } from '../hooks/useUserStore'
+import { useUserStore } from '../../hooks/useUserStore'
 import { 
   MAX_CARD_SHOWN, 
   RANKS, 
