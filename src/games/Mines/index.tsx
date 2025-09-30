@@ -4,7 +4,7 @@ import { BPS_PER_WHOLE } from 'gamba-core-v2'
 import { GRID_SIZE, MINE_SELECT, PITCH_INCREASE_FACTOR, SOUND_EXPLODE, SOUND_FINISH, SOUND_STEP, SOUND_TICK, SOUND_WIN } from './constants'
 import { CellButton, Container, Container2, Grid, Level, Levels, StatusBar } from './styles'
 import { generateGrid, revealAllMines, revealGold } from './utils'
-import { useUserStore } from '../hooks/useUserStore'
+import { useUserStore } from '../../hooks/useUserStore'
 
 function Mines() {
   const { balance, updateBalance } = useUserStore()
