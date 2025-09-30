@@ -19,8 +19,7 @@ import {
   SlotItem,
 } from './constants'
 import { getSlotCombination } from './utils'
-import { useUserStore } from '../hooks/useUserStore'
-
+import { useUserStore } from '../../hooks/useUserStore'
 function Messages({ messages }: {messages: string[]}) {
   const [messageIndex, setMessageIndex] = React.useState(0)
   React.useEffect(
