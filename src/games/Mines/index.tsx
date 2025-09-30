@@ -1,8 +1,25 @@
 import React from 'react'
 import { GambaUi, useSound } from 'gamba-react-ui-v2'
 import { BPS_PER_WHOLE } from 'gamba-core-v2'
-import { GRID_SIZE, MINE_SELECT, PITCH_INCREASE_FACTOR, SOUND_EXPLODE, SOUND_FINISH, SOUND_STEP, SOUND_TICK, SOUND_WIN } from './constants'
-import { CellButton, Container, Container2, Grid, Level, Levels, StatusBar } from './styles'
+import {
+  GRID_SIZE,
+  MINE_SELECT,
+  PITCH_INCREASE_FACTOR,
+  SOUND_EXPLODE,
+  SOUND_FINISH,
+  SOUND_STEP,
+  SOUND_TICK,
+  SOUND_WIN,
+} from './constants'
+import {
+  CellButton,
+  Container,
+  Container2,
+  Grid,
+  Level,
+  Levels,
+  StatusBar,
+} from './styles'
 import { generateGrid, revealAllMines, revealGold } from './utils'
 import { useUserStore } from '../../hooks/useUserStore'
 
@@ -28,7 +45,12 @@ function Mines() {
 
   const getMultiplierForLevel = (level: number) => {
     const remainingCells = GRID_SIZE - level
-    return Number(BigInt(remainingCells * BPS_PER_WHOLE) / BigInt(remainingCells - mines)) / BPS_PER_WHOLE
+    return (
+      Number(
+        BigInt(remainingCells * BPS_PER_WHOLE) /
+          BigInt(remainingCells - mines),
+      ) / BPS_PER_WHOLE
+    )
   }
 
   const levels = React.useMemo(() => {
@@ -40,7 +62,9 @@ function Mines() {
       const wager = level === 0 ? initialWager : previousBalance
       const multiplier = getMultiplierForLevel(level)
       const remainingCells = GRID_SIZE - level
-      const bet = Array.from({ length: remainingCells }, (_, i) => i < mines ? 0 : multiplier)
+      const bet = Array.from({ length: remainingCells }, (_, i) =>
+        i < mines ? 0 : multiplier,
+      )
 
       const profit = wager * (multiplier - 1)
       cumProfit += profit
@@ -58,8 +82,10 @@ function Mines() {
   const { wager, bet } = levels[currentLevel] ?? {}
 
   const start = () => {
-    if (balance < initialWager) return
-    updateBalance(-initialWager)
+    if (balance <= 0) return // balans yoxdursa oyun başlamır
+    const wager = Math.min(initialWager, balance) // balansdan çox ola bilməz
+    updateBalance(-wager)
+    setInitialWager(wager)
     setGrid(generateGrid(GRID_SIZE))
     setLoading(false)
     setLevel(0)
@@ -111,9 +137,11 @@ function Mines() {
       setTotalGain(totalGain + profit)
 
       if (nextLevel < GRID_SIZE - mines) {
-        sounds.play('win', { playbackRate: Math.pow(PITCH_INCREASE_FACTOR, currentLevel) })
+        sounds.play('win', {
+          playbackRate: Math.pow(PITCH_INCREASE_FACTOR, currentLevel),
+        })
       } else {
-        sounds.play('win', { playbackRate: .9 })
+        sounds.play('win', { playbackRate: 0.9 })
         sounds.play('finish')
       }
     } finally {
@@ -141,7 +169,8 @@ function Mines() {
               <span>Mines: {mines}</span>
               {totalGain > 0 && (
                 <span>
-                  +{totalGain.toFixed(2)} ₾ +{Math.round(totalGain / initialWager * 100 - 100)}%
+                  +{totalGain.toFixed(2)} ₾ +
+                  {Math.round((totalGain / initialWager) * 100 - 100)}%
                 </span>
               )}
             </div>
@@ -157,10 +186,8 @@ function Mines() {
                     onClick={() => play(index)}
                     disabled={!canPlay || cell.status !== 'hidden'}
                   >
-                    {(cell.status === 'gold') && (
-                      <div>
-                        +{cell.profit.toFixed(2)} ₾
-                      </div>
+                    {cell.status === 'gold' && (
+                      <div>+{cell.profit.toFixed(2)} ₾</div>
                     )}
                   </CellButton>
                 ))}
@@ -172,16 +199,17 @@ function Mines() {
       <GambaUi.Portal target="controls">
         {!started ? (
           <>
-            <GambaUi.WagerInput value={initialWager} onChange={setInitialWager} />
+            <GambaUi.WagerInput
+              value={initialWager}
+              onChange={setInitialWager}
+            />
             <GambaUi.Select
               options={MINE_SELECT}
               value={mines}
               onChange={setMines}
               label={(mines) => <>{mines} Mines</>}
             />
-            <GambaUi.PlayButton onClick={start}>
-              Start
-            </GambaUi.PlayButton>
+            <GambaUi.PlayButton onClick={start}>Start</GambaUi.PlayButton>
           </>
         ) : (
           <GambaUi.Button onClick={endGame}>
