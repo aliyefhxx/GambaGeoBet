@@ -94,6 +94,10 @@ export default function AuthModal() {
 
   const register = useUserStore((state) => state.register)
   const login = useUserStore((state) => state.login)
+  const user = useUserStore((state) => state.currentUser)
+
+  // Əgər artıq login olunubsa → modal göstərilməsin
+  if (user) return null
 
   const handleRegister = (e: React.FormEvent) => {
     e.preventDefault()
@@ -114,6 +118,8 @@ export default function AuthModal() {
 
     if (!success) {
       alert("მომხმარებელი უკვე არსებობს")
+    } else {
+      alert("ანგარიში შეიქმნა ✅ თქვენ მიიღეთ 200 ₾ ბონუსი!")
     }
   }
 
@@ -128,7 +134,7 @@ export default function AuthModal() {
   return (
     <Overlay>
       <Modal>
-        <Title>{isRegister ? "რეგისტრაცია ✨" : "შესვლა 🔑"}</Title>
+        <Title>{isRegister ? "რეგისტრაცია " : "შესვლა "}</Title>
 
         <form onSubmit={isRegister ? handleRegister : handleLogin}>
           <Input
