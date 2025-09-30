@@ -30,7 +30,17 @@ export default function App() {
   return (
     <>
       {/* თუ მომხმარებელი არ არის ავტორიზებული → ვაჩვენოთ Login/Register */}
-      {!user && <AuthModal />}
+      {!user && (
+        <AuthModal
+          onLogin={(username) => {
+            const users = JSON.parse(localStorage.getItem("users") || "[]")
+            const currentUser = users.find((u: any) => u.username === username)
+            if (currentUser) {
+              useUserStore.getState().setUser(currentUser) // ✅ istifadəçini store-a yaz
+            }
+          }}
+        />
+      )}
 
       {/* დეპოზიტის Modal */}
       {depositOpen && <DepositModal onClose={() => setDepositOpen(false)} />}
