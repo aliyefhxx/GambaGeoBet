@@ -1,6 +1,7 @@
 // src/sections/Header.tsx
 import {
   GambaUi,
+  TokenValue,
   useCurrentPool,
   useGambaPlatformContext,
 } from "gamba-react-ui-v2"
@@ -13,7 +14,7 @@ import { PLATFORM_JACKPOT_FEE, PLATFORM_CREATOR_ADDRESS } from "../constants"
 import { useMediaQuery } from "../hooks/useMediaQuery"
 import TokenSelect from "./TokenSelect"
 import { ENABLE_LEADERBOARD } from "../constants"
-import AuthModal from "../components/AuthModal"
+import { useUserStore } from "../hooks/useUserStore" // ✅ bizdəki store
 
 const Bonus = styled.button`
   all: unset;
@@ -64,49 +65,28 @@ export default function Header({
   const isDesktop = useMediaQuery("lg")
 
   const [showLeaderboard, setShowLeaderboard] = React.useState(false)
+  const [bonusHelp, setBonusHelp] = React.useState(false)
   const [jackpotHelp, setJackpotHelp] = React.useState(false)
-  const [currentUser, setCurrentUser] = React.useState<any>(
-    JSON.parse(localStorage.getItem("currentUser") || "null"),
-  )
-  const [showAuth, setShowAuth] = React.useState(!currentUser)
 
-  const handleLogout = () => {
-    localStorage.removeItem("currentUser")
-    setCurrentUser(null)
-    setShowAuth(true)
-  }
+  // ✅ user və balance artıq bizim store-dan
+  const currentUser = useUserStore((state) => state.currentUser)
+  const logout = useUserStore((state) => state.logout)
 
   return (
     <>
-      {showAuth && (
-        <AuthModal
-          onLogin={() => {
-            const user = JSON.parse(localStorage.getItem("currentUser") || "null")
-            setCurrentUser(user)
-            setShowAuth(false)
-          }}
-        />
+      {bonusHelp && (
+        <Modal onClose={() => setBonusHelp(false)}>
+          <h1>Bonus ✨</h1>
+          <p>თქვენ გაქვთ საწყისი 200₾ ბალანსი ახალ ანგარიშზე 🎁</p>
+        </Modal>
       )}
 
       {jackpotHelp && (
         <Modal onClose={() => setJackpotHelp(false)}>
           <h1>Jackpot 💰</h1>
           <p style={{ fontWeight: "bold" }}>
-            ჯეკპოტშია {pool.jackpotBalance}
+            ჯეკპოტშია <TokenValue amount={pool.jackpotBalance} />
           </p>
-          <p>
-            ჯეკპოტი იზრდება თითოეული ფსონისას. გამარჯვების შემდეგ თავიდან
-            იწყება.
-          </p>
-          <label style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-            {context.defaultJackpotFee === 0 ? "გამორთულია" : "ჩართულია"}
-            <GambaUi.Switch
-              checked={context.defaultJackpotFee > 0}
-              onChange={(checked) =>
-                context.setDefaultJackpotFee(checked ? PLATFORM_JACKPOT_FEE : 0)
-              }
-            />
-          </label>
         </Modal>
       )}
 
@@ -134,7 +114,7 @@ export default function Header({
         >
           {pool.jackpotBalance > 0 && (
             <Bonus onClick={() => setJackpotHelp(true)}>
-              💰 {pool.jackpotBalance}
+              💰 <TokenValue amount={pool.jackpotBalance} />
             </Bonus>
           )}
 
@@ -148,14 +128,17 @@ export default function Header({
 
           {currentUser ? (
             <>
-              <span style={{ color: "white", fontWeight: "bold" }}>
+              {/* ✅ İndi real balans göstərilir */}
+              <span style={{ color: "#fff", marginRight: "10px" }}>
                 {currentUser.username} — {currentUser.balance}₾
               </span>
               <GambaUi.Button onClick={openDeposit}>Deposit</GambaUi.Button>
               <GambaUi.Button onClick={openWithdraw}>Withdraw</GambaUi.Button>
-              <GambaUi.Button onClick={handleLogout}>LogOut</GambaUi.Button>
+              <GambaUi.Button onClick={logout}>LogOut</GambaUi.Button>
             </>
-          ) : null}
+          ) : (
+            <span style={{ color: "#fff" }}>ავტორიზაცია არაა</span>
+          )}
         </div>
       </StyledHeader>
     </>
