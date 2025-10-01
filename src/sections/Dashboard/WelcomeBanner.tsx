@@ -18,7 +18,7 @@ export function WelcomeBanner() {
   return (
     <Welcome>
       <div>
-        <h1>GAMBA GEO BET 🚀</h1>
+        <h1>ARAFLI ELNAR AUYE </h1>
         <p>GAMBA GEO BET-თან ერთად ყოველთვის მოიგებთ! ⚡</p>
       </div>
     </Welcome>
